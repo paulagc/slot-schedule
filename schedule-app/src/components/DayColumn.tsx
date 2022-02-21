@@ -1,13 +1,16 @@
 import { Typography, Stack, Grid } from "@mui/material";
 import { useDrop } from "react-dnd";
+import ITask from "../interfaces/ITask";
 import Slot from "./Slot";
 
 const DayColumn = ({
-  columnName,
+  day,
   tasks,
+  setTasks,
 }: {
-  columnName: string;
-  tasks: any[];
+  day: string;
+  tasks: ITask[];
+  setTasks: any;
 }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
@@ -18,19 +21,31 @@ const DayColumn = ({
   }));
 
   const addTaskToDay = (id: number) => {
-      console.log(id)
+    let modifiedTasks: ITask[] = [...tasks];
+    const taskIndex: number = modifiedTasks.findIndex(
+      (item: ITask) => id === item.id
+    );
+    let taskTemp = modifiedTasks[taskIndex];
+    taskTemp.day = day;
+    modifiedTasks[taskIndex] = taskTemp;
+    setTasks(modifiedTasks);
   };
+
+  const getTasks = () => {
+    return tasks
+      .filter((item) => item.day === day)
+      .map((item) => (
+        <Slot key={item.id} id={item.id} name={item.title} />
+      ));
+  };
+
   return (
     <Grid item ref={drop} padding={1}>
       <Stack spacing={2}>
-        <Typography variant="h6" component="div" >
-          {columnName}
+        <Typography variant="h6" component="div">
+          {day}
         </Typography>
-        {tasks
-          .filter((item) => item.status === columnName)
-          .map((item) => (
-            <Slot id={item.id} name={item.title} />
-          ))}
+        {getTasks()}
       </Stack>
     </Grid>
   );
