@@ -1,35 +1,52 @@
 import { columnHeaders as days } from "../constants/columnHeaders";
-import { Container, Grid } from "@mui/material";
+import { Button, Container, Grid } from "@mui/material";
 import DayColumn from "./DayColumn";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import CreateTaskDialog from "./CreateTaskDialog";
+import { StoreContext } from "../store/storeContext";
 import ITask from "../interfaces/ITask";
+import { getRandomTaskId } from "../utils/getRandomTaskId";
 
 const Schedule = () => {
-  const [tasks, setTasks] = useState<ITask[]>([
-    { id: 1, title: "First Task", day: days[0] },
-    { id: 2, title: "Second Task", day: days[1] },
-    { id: 3, title: "Third Task", day: days[0] },
-    { id: 4, title: "Fourth Task", day: days[2] },
-    { id: 5, title: "Fifth Task", day: days[0] },
-    { id: 6, title: "Sixth Task", day: days[3] },
-    { id: 7, title: "Seventh Task", day: days[3] },
-    { id: 8, title: "Eighth Task", day: days[4] },
-    { id: 9, title: "Ninth Task", day: days[4] },
-    { id: 10, title: "Tenth Task", day: days[5] },
-  ]);
+  const [open, setOpen] = useState(false);
+  const { tasks, setTasks } = useContext(StoreContext);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value: string) => {
+    setOpen(false);
+  };
+
+  const handleSubmitTask = (newTitle: string, selectedDay: string) => {
+    const modifiedTasks: ITask[] = [...tasks];
+    modifiedTasks.push({
+      id: getRandomTaskId(),
+      title: newTitle,
+      day: selectedDay,
+    });
+    setTasks(modifiedTasks);
+    setOpen(false);
+  };
 
   return (
     <Container maxWidth="lg">
       <Grid container spacing={5}>
         {days.map((day: string) => (
-          <DayColumn
-            key={day}
-            day={day}
-            tasks={tasks}
-            setTasks={setTasks}
-          />
+          <DayColumn key={day} day={day} />
         ))}
       </Grid>
+      <div style={{ marginTop: "100px", textAlign: "left" }}>
+        <Button variant="contained" color="primary" onClick={handleClickOpen}>
+          Create Task
+        </Button>
+        <CreateTaskDialog
+          open={open}
+          handleClose={handleClose}
+          handleSubmitTask={handleSubmitTask}
+        />
+      </div>
     </Container>
   );
 };
