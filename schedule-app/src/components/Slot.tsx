@@ -1,5 +1,4 @@
 import { Card, CardContent, Typography } from "@mui/material";
-import { useEffect } from "react";
 import { useDrag } from "react-dnd";
 
 const Slot = ({

@@ -1,17 +1,15 @@
 import { Typography, Stack, Grid } from "@mui/material";
+import { useContext, useRef } from "react";
 import { useDrop } from "react-dnd";
 import ITask from "../interfaces/ITask";
+import { StoreContext } from "../store/storeContext";
 import Slot from "./Slot";
 
-const DayColumn = ({
-  day,
-  tasks,
-  setTasks,
-}: {
-  day: string;
-  tasks: ITask[];
-  setTasks: any;
-}) => {
+const DayColumn = ({ day }: { day: string }) => {
+  const { tasks, setTasks } = useContext(StoreContext);
+  const taksRef = useRef();
+  taksRef.current = tasks;
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "task",
     drop: (item: any) => addTaskToDay(item.id),
@@ -21,7 +19,9 @@ const DayColumn = ({
   }));
 
   const addTaskToDay = (id: number) => {
-    let modifiedTasks: ITask[] = [...tasks];
+    const dropCount = taksRef.current;
+    let modifiedTasks: ITask[] =
+      dropCount !== undefined ? [...dropCount] : [...tasks];
     const taskIndex: number = modifiedTasks.findIndex(
       (item: ITask) => id === item.id
     );
@@ -33,8 +33,8 @@ const DayColumn = ({
 
   const getTasks = () => {
     return tasks
-      .filter((item) => item.day === day)
-      .map((item) => (
+      .filter((item: ITask) => item.day === day)
+      .map((item: ITask) => (
         <Slot key={item.id} id={item.id} name={item.title} />
       ));
   };
